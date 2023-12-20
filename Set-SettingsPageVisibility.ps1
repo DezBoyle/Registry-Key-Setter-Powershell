@@ -11,7 +11,6 @@ Function Test-RegistryValue()
         [string]$name
     )
 
-    # Write-Host "REGKEY: $regkey, NAME: $name"
     Get-ItemProperty -LiteralPath $regkey -Name $name |
     Out-Null
     $?

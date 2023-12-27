@@ -2,30 +2,32 @@ $Key = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
 $Property = 'SettingsPageVisibility'
 $Value = 'Hide:privacy-location'
 
-Function Test-RegistryValue()
-{
-    #modified from this broken code snippet https://blog.idera.com/database-tools/test-whether-registry-value-exists
+Function Test-RegistryValue() {
     param
     (
         [string]$regkey,
         [string]$name
     )
 
-    Get-ItemProperty -LiteralPath $regkey -Name $name |
-    Out-Null
-    $?
+    $exists = $false
+    try {
+        Get-ItemProperty -LiteralPath $regkey -Name $name | Out-Null
+        $exists = $true
+    }
+    catch {
+        $exists = $false
+    }
+    return $exists
 }
 
 #does the path exist?  If not, make it
-if(-not (Test-Path -Path $Key))
-{
+if (-not (Test-Path -Path $Key)) {
     Write-Host "Path: $Key not found, Creating path"
     New-Item -Path $Key -Force
 }
 
 #does the key exist?
-if(Test-RegistryValue $Key $Property)
-{
+if (Test-RegistryValue $Key $Property) {
     #modify the key and return
     Write-Host "Key already exists, setting property"
     Set-ItemProperty -Path $Key -Name $Property -Value $Value
@@ -33,13 +35,11 @@ if(Test-RegistryValue $Key $Property)
 }
 
 #create a new key
-try
-{
+try {
     Write-Host "Creating registry key: $Property"
     New-ItemProperty -Path $Key -Name $Property -Value $Value
 }
-catch
-{
+catch {
     Write-Error "Failed to create new item property: $Property at path: $Key"
     return
 }

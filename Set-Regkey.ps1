@@ -1,3 +1,12 @@
+param (
+    [Parameter( Mandatory = $true)]
+    [string]$key, # Ex. 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
+    [Parameter( Mandatory = $true)]
+    [string]$property, # Ex. 'SettingsPageVisibility'
+    [Parameter( Mandatory = $true)]
+    [string]$value     # Ex. 'Hide:privacy-location'
+)
+
 Function Test-RegistryValue() {
     param
     (
@@ -16,44 +25,28 @@ Function Test-RegistryValue() {
     return $exists
 }
 
-function Set-RegistryKey {
-    param (
-        [string]$key,      # Ex. 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-        [string]$property, # Ex. 'SettingsPageVisibility'
-        [string]$value     # Ex. 'Hide:privacy-location'
-    )
-
-    #does the path exist?  If not, make it
-    if (-not (Test-Path -Path $key)) {
-        Write-Host "Path: $key not found, Creating path"
-        New-Item -Path $key -Force
-    }
-
-    #does the key exist?
-    if (Test-RegistryValue $key $property) {
-        #modify the key and return
-        Write-Host "Key already exists, setting property"
-        Set-ItemProperty -Path $key -Name $property -Value $value
-        return
-    }
-
-    #create a new key
-    try {
-        Write-Host "Creating registry key: $property"
-        New-ItemProperty -Path $key -Name $property -Value $value
-    }
-    catch {
-        Write-Error "Failed to create new item property: $property at path: $key"
-        return
-    }
-
-    Write-Host "Done creating registry key"
-    
+#does the path exist?  If not, make it
+if (-not (Test-Path -Path $key)) {
+    Write-Host "Path: $key not found, Creating path"
+    New-Item -Path $key -Force
 }
 
-$Key = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-$Property = 'SettingsPageVisibility'
-$Value = 'Hide:privacy-location'
+#does the key exist?
+if (Test-RegistryValue $key $property) {
+    #modify the key and return
+    Write-Host "Key already exists, setting property"
+    Set-ItemProperty -Path $key -Name $property -Value $value
+    return
+}
 
-#call the function
-Set-RegistryKey -key $Key -property $Property -value $Value
+#create a new key
+try {
+    Write-Host "Creating registry key: $property"
+    New-ItemProperty -Path $key -Name $property -Value $value
+}
+catch {
+    Write-Error "Failed to create new item property: $property at path: $key"
+    return
+}
+
+Write-Host "Done creating registry key"

@@ -1,7 +1,3 @@
-$Key = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-$Property = 'SettingsPageVisibility'
-$Value = 'Hide:privacy-location'
-
 Function Test-RegistryValue() {
     param
     (
@@ -55,4 +51,9 @@ function Set-RegistryKey {
     
 }
 
+$Key = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer'
+$Property = 'SettingsPageVisibility'
+$Value = 'Hide:privacy-location'
+
+#call the function
 Set-RegistryKey -key $Key -property $Property -value $Value
